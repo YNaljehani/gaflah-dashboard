@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaflah.com Financial Dashboard - Jan 20-26, 2025</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #00d4ff, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        .header .period {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .export-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .export-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .export-btn.pdf {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .export-btn.excel {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid #334155;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .kpi-card .label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .kpi-card .label-ar {
+            color: #64748b;
+            font-size: 0.8rem;
+            direction: rtl;
+        }
+
+        .kpi-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .kpi-card .change {
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .kpi-card .change.positive {
+            color: #22c55e;
+        }
+
+        .kpi-card .change.negative {
+            color: #ef4444;
+        }
+
+        .kpi-card.revenue .value { color: #00d4ff; }
+        .kpi-card.profit .value { color: #22c55e; }
+        .kpi-card.orders .value { color: #a855f7; }
+        .kpi-card.aov .value { color: #f59e0b; }
+        .kpi-card.returns .value { color: #ef4444; }
+        .kpi-card.visits .value { color: #06b6d4; }
+
+        .section {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid #334155;
+        }
+
+        .section h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h2 .ar {
+            color: #94a3b8;
+            font-size: 1rem;
+            font-weight: normal;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+
+        .chart-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+
+        .data-table th {
+            background: #0f172a;
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .data-table tr:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .data-table .profit-positive {
+            color: #22c55e;
+        }
+
+        .data-table .profit-negative {
+            color: #ef4444;
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .insight-card {
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .insight-card.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-left-color: #f59e0b;
+        }
+
+        .insight-card.danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-left-color: #ef4444;
+        }
+
+        .insight-card.success {
+            background: rgba(34, 197, 94, 0.1);
+            border-left-color: #22c55e;
+        }
+
+        .insight-card h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: #e2e8f0;
+        }
+
+        .insight-card p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .recommendation-list {
+            list-style: none;
+        }
+
+        .recommendation-list li {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #8b5cf6;
+            color: #e2e8f0;
+        }
+
+        .recommendation-list li strong {
+            color: #a855f7;
+        }
+
+        .profit-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .profit-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 8px;
+        }
+
+        .profit-item .label {
+            color: #94a3b8;
+        }
+
+        .profit-item .value {
+            font-weight: 600;
+        }
+
+        .profit-item .value.negative {
+            color: #ef4444;
+        }
+
+        .profit-item .value.positive {
+            color: #22c55e;
+        }
+
+        .conversion-funnel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .funnel-step {
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .funnel-step:hover {
+            transform: scale(1.02);
+        }
+
+        .funnel-step .number {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .funnel-step .label {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+
+        .funnel-arrow {
+            color: #64748b;
+            font-size: 1.5rem;
+        }
+
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+            .export-buttons {
+                display: none;
+            }
+            .section, .kpi-card {
+                break-inside: avoid;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            .kpi-card .value {
+                font-size: 1.5rem;
+            }
+            .chart-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="dashboard-content">
+        <div class="header">
+            <h1>Gaflah.com Financial Dashboard</h1>
+            <div class="subtitle">Smart Lock E-Commerce Store Analytics</div>
+            <div class="period">Analysis Period: January 20-26, 2025 | Platform: Salla.sa</div>
+        </div>
+
+        <div class="export-buttons">
+            <button class="export-btn pdf" onclick="exportToPDF()">Export to PDF</button>
+            <button class="export-btn excel" onclick="exportToExcel()">Export to Excel</button>
+        </div>
+
+        <div class="dashboard">
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card revenue">
+                    <div class="label">Gross Sales <span class="label-ar">| اجمالي المبيعات</span></div>
+                    <div class="value">61,031 SAR</div>
+                    <div class="change positive">+28.43% vs previous period</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="label">Net Sales <span class="label-ar">| صافي المبيعات بعد الخصومات</span></div>
+                    <div class="value" style="color: #38bdf8;">59,680 SAR</div>
+                    <div class="change positive">+25.73% vs previous period</div>
+                </div>
+
+                <div class="kpi-card profit">
+                    <div class="label">Net Profit <span class="label-ar">| صافي الربح</span></div>
+                    <div class="value">12,717 SAR</div>
+                    <div class="change negative">-27.52% vs previous period</div>
+                </div>
+
+                <div class="kpi-card orders">
+                    <div class="label">Total Orders <span class="label-ar">| عدد الطلبات</span></div>
+                    <div class="value">90</div>
+                    <div class="change">Orders completed</div>
+                </div>
+
+                <div class="kpi-card aov">
+                    <div class="label">Avg Order Value <span class="label-ar">| متوسط سلة المشتريات</span></div>
+                    <div class="value">664 SAR</div>
+                    <div class="change negative">-7.62% vs previous period</div>
+                </div>
+
+                <div class="kpi-card returns">
+                    <div class="label">Return Rate <span class="label-ar">| معدل المرتجعات</span></div>
+                    <div class="value">16.7%</div>
+                    <div class="change negative">+39.17% (15 returns)</div>
+                </div>
+
+                <div class="kpi-card visits">
+                    <div class="label">Total Visits <span class="label-ar">| اجمالي الزيارات</span></div>
+                    <div class="value">67,964</div>
+                    <div class="change">Store visits</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="label">Conversion Rate <span class="label-ar">| معدل التحويل</span></div>
+                    <div class="value" style="color: #f97316;">0.13%</div>
+                    <div class="change negative">90 orders / 67,964 visits</div>
+                </div>
+            </div>
+
+            <!-- Profit Breakdown -->
+            <div class="section">
+                <h2>Profit & Loss Breakdown <span class="ar">| تفصيل الأرباح والخسائر</span></h2>
+                <div class="profit-breakdown">
+                    <div class="profit-item">
+                        <span class="label">Gross Sales</span>
+                        <span class="value positive">+61,031 SAR</span>
+                    </div>
+                    <div class="profit-item">
+                        <span class="label">Discounts / Coupons</span>
+                        <span class="value negative">-1,351 SAR</span>
+                    </div>
+                    <div class="profit-item">
+                        <span class="label">Product Costs (COGS)</span>
+                        <span class="value negative">-45,812 SAR</span>
+                    </div>
+                    <div class="profit-item">
+                        <span class="label">Shipping Costs</span>
+                        <span class="value negative">-629 SAR</span>
+                    </div>
+                    <div class="profit-item">
+                        <span class="label">Payment Fees</span>
+                        <span class="value negative">-522 SAR</span>
+                    </div>
+                    <div class="profit-item">
+                        <span class="label"><strong>Net Profit</strong></span>
+                        <span class="value positive"><strong>+12,717 SAR</strong></span>
+                    </div>
+                </div>
+                <div class="chart-container" style="height: 350px; margin-top: 30px;">
+                    <canvas id="profitChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="chart-row">
+                <div class="section">
+                    <h2>Sales by Channel <span class="ar">| المبيعات حسب القناة</span></h2>
+                    <div class="chart-container">
+                        <canvas id="channelChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>Traffic by City <span class="ar">| الزيارات حسب المدينة</span></h2>
+                    <div class="chart-container">
+                        <canvas id="cityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-row">
+                <div class="section">
+                    <h2>Traffic Sources <span class="ar">| مصادر الزيارات</span></h2>
+                    <div class="chart-container">
+                        <canvas id="trafficChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>Device Distribution <span class="ar">| توزيع الأجهزة</span></h2>
+                    <div class="chart-container">
+                        <canvas id="deviceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conversion Funnel -->
+            <div class="section">
+                <h2>Conversion Funnel <span class="ar">| قمع التحويل</span></h2>
+                <div class="conversion-funnel">
+                    <div class="funnel-step" style="width: 100%; background: linear-gradient(90deg, rgba(6, 182, 212, 0.3), rgba(6, 182, 212, 0.1));">
+                        <div class="number" style="color: #06b6d4;">67,964</div>
+                        <div class="label">Total Visits | اجمالي الزيارات</div>
+                    </div>
+                    <div class="funnel-arrow">↓</div>
+                    <div class="funnel-step" style="width: 70%; background: linear-gradient(90deg, rgba(168, 85, 247, 0.3), rgba(168, 85, 247, 0.1));">
+                        <div class="number" style="color: #a855f7;">90</div>
+                        <div class="label">Orders Placed | الطلبات (0.13%)</div>
+                    </div>
+                    <div class="funnel-arrow">↓</div>
+                    <div class="funnel-step" style="width: 55%; background: linear-gradient(90deg, rgba(34, 197, 94, 0.3), rgba(34, 197, 94, 0.1));">
+                        <div class="number" style="color: #22c55e;">75</div>
+                        <div class="label">Completed (No Returns) | مكتمل</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Products -->
+            <div class="section">
+                <h2>Top Products by Profit <span class="ar">| المنتجات الأكثر ربحاً</span></h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Product | المنتج</th>
+                            <th>Orders | الطلبات</th>
+                            <th>Cost | التكلفة</th>
+                            <th>Revenue | الإيرادات</th>
+                            <th>Profit | الربح</th>
+                            <th>Margin</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Smart Door Lock - External (خارجي)</td>
+                            <td>50</td>
+                            <td>12,699 SAR</td>
+                            <td>24,065 SAR</td>
+                            <td class="profit-positive">+11,366 SAR</td>
+                            <td class="profit-positive">47.2%</td>
+                        </tr>
+                        <tr>
+                            <td>Smart Door Lock - Internal (داخلي)</td>
+                            <td>44</td>
+                            <td>7,832 SAR</td>
+                            <td>15,686 SAR</td>
+                            <td class="profit-positive">+7,854 SAR</td>
+                            <td class="profit-positive">50.1%</td>
+                        </tr>
+                        <tr>
+                            <td>Smart Lock Card (كرت قفل ذكي)</td>
+                            <td>81</td>
+                            <td>81 SAR</td>
+                            <td>405 SAR</td>
+                            <td class="profit-positive">+324 SAR</td>
+                            <td class="profit-positive">80.0%</td>
+                        </tr>
+                        <tr>
+                            <td>Smart Lock Installation (تركيب قفل ذكي)</td>
+                            <td>2</td>
+                            <td>380 SAR</td>
+                            <td>380 SAR</td>
+                            <td>0 SAR</td>
+                            <td>0%</td>
+                        </tr>
+                        <tr>
+                            <td>Bundle: Internal + External Lock (داخلي + خارجي)</td>
+                            <td>10</td>
+                            <td>7,100 SAR</td>
+                            <td>6,910 SAR</td>
+                            <td class="profit-negative">-190 SAR</td>
+                            <td class="profit-negative">-2.8%</td>
+                        </tr>
+                        <tr>
+                            <td>2 Internal Locks + Free Lock (قفلين داخلية + مجاني)</td>
+                            <td>16</td>
+                            <td>14,880 SAR</td>
+                            <td>10,640 SAR</td>
+                            <td class="profit-negative">-4,240 SAR</td>
+                            <td class="profit-negative">-39.8%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Key Insights -->
+            <div class="section">
+                <h2>Key Insights <span class="ar">| الرؤى الرئيسية</span></h2>
+                <div class="insights-grid">
+                    <div class="insight-card danger">
+                        <h3>Critical: Bundle Offers Losing Money</h3>
+                        <p>Your bundle offers (internal + external lock, 2 locks + free) are generating <strong>losses of -4,430 SAR</strong>. The "2 locks + free" bundle alone lost 4,240 SAR. These promotions are eroding your profits significantly.</p>
+                    </div>
+
+                    <div class="insight-card danger">
+                        <h3>Critical: Very Low Conversion Rate</h3>
+                        <p>Your conversion rate is only <strong>0.13%</strong> (90 orders from 67,964 visits). Industry average for e-commerce is 1-3%. This indicates issues with pricing, user experience, or traffic quality.</p>
+                    </div>
+
+                    <div class="insight-card warning">
+                        <h3>Warning: High Return Rate</h3>
+                        <p>Return rate increased by <strong>39.17%</strong> to 16.7% (15 out of 90 orders). This is concerning and may indicate product quality issues or mismatched customer expectations.</p>
+                    </div>
+
+                    <div class="insight-card warning">
+                        <h3>Warning: Profit Margin Declining</h3>
+                        <p>Despite sales increasing 25.73%, net profit <strong>decreased by 27.52%</strong>. Your cost of goods sold increased 58.23% which is outpacing revenue growth. Gross margin is only 21.3%.</p>
+                    </div>
+
+                    <div class="insight-card success">
+                        <h3>Strength: Individual Products Profitable</h3>
+                        <p>External lock (47.2% margin) and Internal lock (50.1% margin) are healthy. Smart Lock Cards have an excellent <strong>80% profit margin</strong>. Focus on these products.</p>
+                    </div>
+
+                    <div class="insight-card success">
+                        <h3>Strength: Strong TikTok Traffic</h3>
+                        <p>TikTok drives <strong>51.4% of all traffic</strong> (34,961 visits). This is a strong marketing channel. Continue investing here but work on converting this traffic better.</p>
+                    </div>
+
+                    <div class="insight-card">
+                        <h3>Insight: Mobile-First Audience</h3>
+                        <p><strong>89.2% of visitors use mobile devices</strong>. Ensure your store is fully optimized for mobile experience, fast loading, and easy checkout on phones.</p>
+                    </div>
+
+                    <div class="insight-card">
+                        <h3>Insight: Geographic Distribution</h3>
+                        <p>Top markets: <strong>Jeddah (30.4%)</strong>, Riyadh (27.6%), Dammam (13%). Consider targeted campaigns and faster delivery options for these cities.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="section">
+                <h2>Actionable Recommendations <span class="ar">| التوصيات</span></h2>
+                <ul class="recommendation-list">
+                    <li><strong>URGENT - Remove or Reprice Bundle Offers:</strong> Immediately discontinue the "2 locks + free lock" bundle. It's losing 4,240 SAR. Either increase the price to at least 1,150 SAR or remove it. Review all bundle pricing to ensure at least 20% profit margin.</li>
+
+                    <li><strong>URGENT - Investigate Returns:</strong> With 16.7% return rate, contact customers who returned products to understand why. Common issues could be: installation difficulty, product not matching description, or quality concerns. Address root cause immediately.</li>
+
+                    <li><strong>Improve Conversion Rate:</strong> With only 0.13% conversion, focus on:
+                        <br>- Add customer reviews/testimonials prominently
+                        <br>- Offer installation service as an add-on at checkout
+                        <br>- Add product videos showing ease of use
+                        <br>- Implement exit-intent popups with discount codes
+                        <br>- Ensure fast page load times on mobile</li>
+
+                    <li><strong>Optimize TikTok Campaigns:</strong> Since TikTok drives 51% of traffic but conversion is low, ensure your ads target potential buyers (homeowners, not just viewers). Use retargeting to bring back visitors who didn't purchase.</li>
+
+                    <li><strong>Upsell Smart Lock Cards:</strong> These have 80% margin. Promote them as add-ons during checkout ("Add spare cards for your family"). Bundle 5 cards with locks at a slight discount while maintaining 60%+ margin.</li>
+
+                    <li><strong>Installation Service Strategy:</strong> Installation service shows 0% profit. Either:
+                        <br>- Price it higher (most customers will pay for convenience)
+                        <br>- Partner with local technicians for referral fees instead of handling directly
+                        <br>- Use it as a paid add-on that improves conversion</li>
+
+                    <li><strong>Focus on Jeddah & Riyadh:</strong> These cities represent 58% of your traffic. Consider:
+                        <br>- Same-day delivery options
+                        <br>- Local installation partnerships
+                        <br>- City-specific promotions</li>
+
+                    <li><strong>Review Supplier Costs:</strong> COGS increased 58% while revenue only grew 26%. Negotiate better rates with suppliers or find alternative sources. Every 5% reduction in COGS adds ~2,300 SAR to profit.</li>
+                </ul>
+            </div>
+
+            <!-- Financial Summary -->
+            <div class="section">
+                <h2>Weekly Financial Summary <span class="ar">| ملخص الأسبوع المالي</span></h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Value (SAR)</th>
+                            <th>% of Revenue</th>
+                            <th>Change vs Previous</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Gross Sales (اجمالي المبيعات)</td>
+                            <td>61,031</td>
+                            <td>102.3%</td>
+                            <td class="profit-positive">+28.43%</td>
+                        </tr>
+                        <tr>
+                            <td>Discounts (كوبونات التخفيض)</td>
+                            <td>-1,351</td>
+                            <td>-2.3%</td>
+                            <td class="profit-negative">+2,407%</td>
+                        </tr>
+                        <tr>
+                            <td>Net Sales (صافي المبيعات)</td>
+                            <td>59,680</td>
+                            <td>100%</td>
+                            <td class="profit-positive">+25.73%</td>
+                        </tr>
+                        <tr>
+                            <td>Cost of Goods Sold (تكاليف المنتجات)</td>
+                            <td>-45,812</td>
+                            <td>-76.8%</td>
+                            <td class="profit-negative">+58.23%</td>
+                        </tr>
+                        <tr>
+                            <td>Gross Profit (اجمالي الربح)</td>
+                            <td>13,868</td>
+                            <td>23.2%</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>Shipping (الشحن)</td>
+                            <td>-629</td>
+                            <td>-1.1%</td>
+                            <td class="profit-negative">+9.01%</td>
+                        </tr>
+                        <tr>
+                            <td>Payment Fees (رسوم الدفع)</td>
+                            <td>-522</td>
+                            <td>-0.9%</td>
+                            <td class="profit-negative">+33.99%</td>
+                        </tr>
+                        <tr style="background: rgba(34, 197, 94, 0.1);">
+                            <td><strong>Net Profit (صافي الربح)</strong></td>
+                            <td><strong>12,717</strong></td>
+                            <td><strong>21.3%</strong></td>
+                            <td class="profit-negative"><strong>-27.52%</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chart.js configurations
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.borderColor = '#334155';
+
+        // Profit Breakdown Chart
+        new Chart(document.getElementById('profitChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Gross Sales', 'Discounts', 'COGS', 'Shipping', 'Payment Fees', 'Net Profit'],
+                datasets: [{
+                    label: 'Amount (SAR)',
+                    data: [61031, -1351, -45812, -629, -522, 12717],
+                    backgroundColor: [
+                        'rgba(34, 197, 94, 0.7)',
+                        'rgba(239, 68, 68, 0.7)',
+                        'rgba(239, 68, 68, 0.7)',
+                        'rgba(239, 68, 68, 0.7)',
+                        'rgba(239, 68, 68, 0.7)',
+                        'rgba(59, 130, 246, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(34, 197, 94, 1)',
+                        'rgba(239, 68, 68, 1)',
+                        'rgba(239, 68, 68, 1)',
+                        'rgba(239, 68, 68, 1)',
+                        'rgba(239, 68, 68, 1)',
+                        'rgba(59, 130, 246, 1)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#334155' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Sales Channel Chart
+        new Chart(document.getElementById('channelChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Store (المتجر)', 'Dashboard (الداشبورد)', 'Mobile Browser', 'Local (محلي)'],
+                datasets: [{
+                    data: [41669, 16940, 535, 535],
+                    backgroundColor: [
+                        'rgba(59, 130, 246, 0.8)',
+                        'rgba(168, 85, 247, 0.8)',
+                        'rgba(34, 197, 94, 0.8)',
+                        'rgba(245, 158, 11, 0.8)'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 20 }
+                    }
+                }
+            }
+        });
+
+        // City Distribution Chart
+        new Chart(document.getElementById('cityChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Jeddah', 'Riyadh', 'Dammam', 'Madinah', 'Makkah', 'Other'],
+                datasets: [{
+                    data: [20631, 18733, 8868, 6454, 1701, 11577],
+                    backgroundColor: [
+                        'rgba(6, 182, 212, 0.8)',
+                        'rgba(168, 85, 247, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(239, 68, 68, 0.8)',
+                        'rgba(59, 130, 246, 0.8)',
+                        'rgba(100, 116, 139, 0.8)'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 15 }
+                    }
+                }
+            }
+        });
+
+        // Traffic Sources Chart
+        new Chart(document.getElementById('trafficChart'), {
+            type: 'bar',
+            data: {
+                labels: ['TikTok', 'pangleglobal.com', 'Facebook', 'Direct', 'm.facebook.com'],
+                datasets: [{
+                    label: 'Visits',
+                    data: [34961, 13088, 4195, 3823, 3530],
+                    backgroundColor: 'rgba(168, 85, 247, 0.7)',
+                    borderColor: 'rgba(168, 85, 247, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { color: '#334155' }
+                    },
+                    y: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Device Chart
+        new Chart(document.getElementById('deviceChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Mobile (89.2%)', 'Tablet (8.3%)', 'Desktop (2.6%)'],
+                datasets: [{
+                    data: [60034, 5563, 1753],
+                    backgroundColor: [
+                        'rgba(6, 182, 212, 0.8)',
+                        'rgba(168, 85, 247, 0.8)',
+                        'rgba(34, 197, 94, 0.8)'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 20 }
+                    }
+                }
+            }
+        });
+
+        // Export Functions
+        function exportToPDF() {
+            const element = document.getElementById('dashboard-content');
+            const opt = {
+                margin: 10,
+                filename: 'Gaflah_Dashboard_Jan2025.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a3', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        function exportToExcel() {
+            // Create CSV content
+            let csv = 'Gaflah.com Financial Report - Jan 20-26, 2025\n\n';
+
+            csv += 'KEY METRICS\n';
+            csv += 'Metric,Value,Change\n';
+            csv += 'Gross Sales,61031 SAR,+28.43%\n';
+            csv += 'Net Sales,59680 SAR,+25.73%\n';
+            csv += 'Net Profit,12717 SAR,-27.52%\n';
+            csv += 'Total Orders,90,\n';
+            csv += 'Average Order Value,664 SAR,-7.62%\n';
+            csv += 'Return Rate,16.7%,+39.17%\n';
+            csv += 'Total Visits,67964,\n';
+            csv += 'Conversion Rate,0.13%,\n\n';
+
+            csv += 'PROFIT & LOSS\n';
+            csv += 'Item,Amount (SAR),% of Revenue\n';
+            csv += 'Gross Sales,61031,102.3%\n';
+            csv += 'Discounts,-1351,-2.3%\n';
+            csv += 'Net Sales,59680,100%\n';
+            csv += 'Cost of Goods Sold,-45812,-76.8%\n';
+            csv += 'Shipping,-629,-1.1%\n';
+            csv += 'Payment Fees,-522,-0.9%\n';
+            csv += 'Net Profit,12717,21.3%\n\n';
+
+            csv += 'TOP PRODUCTS\n';
+            csv += 'Product,Orders,Cost,Revenue,Profit,Margin\n';
+            csv += 'Smart Door Lock External,50,12699,24065,11366,47.2%\n';
+            csv += 'Smart Door Lock Internal,44,7832,15686,7854,50.1%\n';
+            csv += 'Smart Lock Card,81,81,405,324,80%\n';
+            csv += 'Installation Service,2,380,380,0,0%\n';
+            csv += 'Bundle Internal+External,10,7100,6910,-190,-2.8%\n';
+            csv += '2 Locks + Free Lock,16,14880,10640,-4240,-39.8%\n\n';
+
+            csv += 'SALES BY CHANNEL\n';
+            csv += 'Channel,Orders,Revenue (SAR)\n';
+            csv += 'Store,73,41669\n';
+            csv += 'Dashboard,15,16940\n';
+            csv += 'Mobile Browser,1,535\n';
+            csv += 'Local,1,535\n\n';
+
+            csv += 'TRAFFIC BY CITY\n';
+            csv += 'City,Visits,Percentage\n';
+            csv += 'Jeddah,20631,30.4%\n';
+            csv += 'Riyadh,18733,27.6%\n';
+            csv += 'Dammam,8868,13%\n';
+            csv += 'Madinah,6454,9.5%\n';
+            csv += 'Makkah,1701,2.5%\n';
+            csv += 'Other,11577,17%\n\n';
+
+            csv += 'TRAFFIC SOURCES\n';
+            csv += 'Source,Visits,Percentage\n';
+            csv += 'TikTok,34961,51.4%\n';
+            csv += 'pangleglobal.com,13088,19.3%\n';
+            csv += 'Facebook,4195,6.2%\n';
+            csv += 'Direct,3823,5.6%\n';
+            csv += 'm.facebook.com,3530,5.2%\n';
+
+            // Download CSV
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'Gaflah_Report_Jan2025.csv';
+            link.click();
+        }
+    </script>
+</body>
+</html>
