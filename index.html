@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gaflah.com Financial Dashboard - Jan 20-26, 2025</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -14,7 +15,7 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             min-height: 100vh;
             color: #fff;
@@ -51,6 +52,7 @@
             justify-content: center;
             gap: 15px;
             margin-bottom: 30px;
+            flex-wrap: wrap;
         }
 
         .export-btn {
@@ -61,6 +63,7 @@
             font-size: 1rem;
             font-weight: 600;
             transition: all 0.3s ease;
+            font-family: 'Tajawal', sans-serif;
         }
 
         .export-btn.pdf {
@@ -70,6 +73,11 @@
 
         .export-btn.excel {
             background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+        }
+
+        .export-btn.chat {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
             color: white;
         }
 
@@ -112,10 +120,10 @@
             gap: 8px;
         }
 
-        .kpi-card .label-ar {
+        .kpi-card .label-en {
             color: #64748b;
             font-size: 0.8rem;
-            direction: rtl;
+            direction: ltr;
         }
 
         .kpi-card .value {
@@ -163,7 +171,7 @@
             gap: 10px;
         }
 
-        .section h2 .ar {
+        .section h2 .en {
             color: #94a3b8;
             font-size: 1rem;
             font-weight: normal;
@@ -190,7 +198,7 @@
         .data-table th,
         .data-table td {
             padding: 12px 15px;
-            text-align: left;
+            text-align: right;
             border-bottom: 1px solid #334155;
         }
 
@@ -199,7 +207,6 @@
             color: #94a3b8;
             font-weight: 600;
             font-size: 0.85rem;
-            text-transform: uppercase;
         }
 
         .data-table tr:hover {
@@ -224,22 +231,22 @@
             background: rgba(59, 130, 246, 0.1);
             border-radius: 12px;
             padding: 20px;
-            border-left: 4px solid #3b82f6;
+            border-right: 4px solid #3b82f6;
         }
 
         .insight-card.warning {
             background: rgba(245, 158, 11, 0.1);
-            border-left-color: #f59e0b;
+            border-right-color: #f59e0b;
         }
 
         .insight-card.danger {
             background: rgba(239, 68, 68, 0.1);
-            border-left-color: #ef4444;
+            border-right-color: #ef4444;
         }
 
         .insight-card.success {
             background: rgba(34, 197, 94, 0.1);
-            border-left-color: #22c55e;
+            border-right-color: #22c55e;
         }
 
         .insight-card h3 {
@@ -251,7 +258,7 @@
         .insight-card p {
             color: #94a3b8;
             font-size: 0.9rem;
-            line-height: 1.6;
+            line-height: 1.8;
         }
 
         .recommendation-list {
@@ -263,8 +270,9 @@
             margin-bottom: 10px;
             background: rgba(139, 92, 246, 0.1);
             border-radius: 8px;
-            border-left: 3px solid #8b5cf6;
+            border-right: 3px solid #8b5cf6;
             color: #e2e8f0;
+            line-height: 1.8;
         }
 
         .recommendation-list li strong {
@@ -337,12 +345,227 @@
             font-size: 1.5rem;
         }
 
+        /* AI Chat Styles */
+        .chat-container {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+
+        .chat-toggle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .chat-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .chat-toggle svg {
+            width: 28px;
+            height: 28px;
+            fill: white;
+        }
+
+        .chat-window {
+            position: absolute;
+            bottom: 80px;
+            left: 0;
+            width: 380px;
+            max-height: 500px;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 16px;
+            border: 1px solid #334155;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .chat-window.open {
+            display: flex;
+        }
+
+        .chat-header {
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-header .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-header .avatar svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+
+        .chat-header .info h3 {
+            font-size: 1rem;
+            color: white;
+        }
+
+        .chat-header .info p {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            max-height: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 12px 15px;
+            border-radius: 12px;
+            line-height: 1.6;
+            font-size: 0.9rem;
+        }
+
+        .message.bot {
+            background: rgba(139, 92, 246, 0.2);
+            align-self: flex-start;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.user {
+            background: rgba(59, 130, 246, 0.3);
+            align-self: flex-end;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-input-container {
+            padding: 15px;
+            border-top: 1px solid #334155;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 15px;
+            border-radius: 25px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: white;
+            font-size: 0.9rem;
+            font-family: 'Tajawal', sans-serif;
+            outline: none;
+        }
+
+        .chat-input:focus {
+            border-color: #8b5cf6;
+        }
+
+        .chat-input::placeholder {
+            color: #64748b;
+        }
+
+        .chat-send {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .chat-send:hover {
+            transform: scale(1.05);
+        }
+
+        .chat-send svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+            transform: rotate(180deg);
+        }
+
+        .quick-questions {
+            padding: 10px 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            border-top: 1px solid #334155;
+        }
+
+        .quick-btn {
+            padding: 6px 12px;
+            border-radius: 15px;
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: #c4b5fd;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .quick-btn:hover {
+            background: rgba(139, 92, 246, 0.4);
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 15px;
+            background: rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
+            width: fit-content;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #8b5cf6;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
         @media print {
             body {
                 background: white;
                 color: black;
             }
-            .export-buttons {
+            .export-buttons, .chat-container {
                 display: none;
             }
             .section, .kpi-card {
@@ -360,101 +583,106 @@
             .chart-row {
                 grid-template-columns: 1fr;
             }
+            .chat-window {
+                width: 320px;
+                left: -10px;
+            }
         }
     </style>
 </head>
 <body>
     <div id="dashboard-content">
         <div class="header">
-            <h1>Gaflah.com Financial Dashboard</h1>
-            <div class="subtitle">Smart Lock E-Commerce Store Analytics</div>
-            <div class="period">Analysis Period: January 20-26, 2025 | Platform: Salla.sa</div>
+            <h1>لوحة تحكم قفلة المالية</h1>
+            <div class="subtitle">Gaflah.com - Smart Lock E-Commerce Analytics</div>
+            <div class="period">فترة التحليل: 20-26 يناير 2025 | المنصة: سلة</div>
         </div>
 
         <div class="export-buttons">
-            <button class="export-btn pdf" onclick="exportToPDF()">Export to PDF</button>
-            <button class="export-btn excel" onclick="exportToExcel()">Export to Excel</button>
+            <button class="export-btn pdf" onclick="exportToPDF()">تصدير PDF</button>
+            <button class="export-btn excel" onclick="exportToExcel()">تصدير Excel</button>
+            <button class="export-btn chat" onclick="toggleChat()">💬 اسأل المساعد الذكي</button>
         </div>
 
         <div class="dashboard">
             <!-- KPI Cards -->
             <div class="kpi-grid">
                 <div class="kpi-card revenue">
-                    <div class="label">Gross Sales <span class="label-ar">| اجمالي المبيعات</span></div>
-                    <div class="value">61,031 SAR</div>
-                    <div class="change positive">+28.43% vs previous period</div>
+                    <div class="label">إجمالي المبيعات <span class="label-en">| Gross Sales</span></div>
+                    <div class="value">61,031 ر.س</div>
+                    <div class="change positive">+28.43% مقارنة بالفترة السابقة</div>
                 </div>
 
                 <div class="kpi-card">
-                    <div class="label">Net Sales <span class="label-ar">| صافي المبيعات بعد الخصومات</span></div>
-                    <div class="value" style="color: #38bdf8;">59,680 SAR</div>
-                    <div class="change positive">+25.73% vs previous period</div>
+                    <div class="label">صافي المبيعات <span class="label-en">| Net Sales</span></div>
+                    <div class="value" style="color: #38bdf8;">59,680 ر.س</div>
+                    <div class="change positive">+25.73% مقارنة بالفترة السابقة</div>
                 </div>
 
                 <div class="kpi-card profit">
-                    <div class="label">Net Profit <span class="label-ar">| صافي الربح</span></div>
-                    <div class="value">12,717 SAR</div>
-                    <div class="change negative">-27.52% vs previous period</div>
+                    <div class="label">صافي الربح <span class="label-en">| Net Profit</span></div>
+                    <div class="value">12,717 ر.س</div>
+                    <div class="change negative">-27.52% مقارنة بالفترة السابقة</div>
                 </div>
 
                 <div class="kpi-card orders">
-                    <div class="label">Total Orders <span class="label-ar">| عدد الطلبات</span></div>
+                    <div class="label">عدد الطلبات <span class="label-en">| Total Orders</span></div>
                     <div class="value">90</div>
-                    <div class="change">Orders completed</div>
+                    <div class="change">طلب مكتمل</div>
                 </div>
 
                 <div class="kpi-card aov">
-                    <div class="label">Avg Order Value <span class="label-ar">| متوسط سلة المشتريات</span></div>
-                    <div class="value">664 SAR</div>
-                    <div class="change negative">-7.62% vs previous period</div>
+                    <div class="label">متوسط سلة المشتريات <span class="label-en">| AOV</span></div>
+                    <div class="value">664 ر.س</div>
+                    <div class="change negative">-7.62% مقارنة بالفترة السابقة</div>
                 </div>
 
                 <div class="kpi-card returns">
-                    <div class="label">Return Rate <span class="label-ar">| معدل المرتجعات</span></div>
+                    <div class="label">معدل المرتجعات <span class="label-en">| Return Rate</span></div>
                     <div class="value">16.7%</div>
-                    <div class="change negative">+39.17% (15 returns)</div>
+                    <div class="change negative">+39.17% (15 مرتجع)</div>
                 </div>
 
                 <div class="kpi-card visits">
-                    <div class="label">Total Visits <span class="label-ar">| اجمالي الزيارات</span></div>
+                    <div class="label">إجمالي الزيارات <span class="label-en">| Total Visits</span></div>
                     <div class="value">67,964</div>
-                    <div class="change">Store visits</div>
+                    <div class="change">زيارة للمتجر</div>
                 </div>
 
                 <div class="kpi-card">
-                    <div class="label">Conversion Rate <span class="label-ar">| معدل التحويل</span></div>
+                    <div class="label">معدل التحويل <span class="label-en">| Conversion Rate</span></div>
                     <div class="value" style="color: #f97316;">0.13%</div>
-                    <div class="change negative">90 orders / 67,964 visits</div>
+                    <div class="change negative">90 طلب / 67,964 زيارة</div>
                 </div>
             </div>
 
             <!-- Profit Breakdown -->
             <div class="section">
-                <h2>Profit & Loss Breakdown <span class="ar">| تفصيل الأرباح والخسائر</span></h2>
+                <h2>تفصيل الأرباح والخسائر <span class="en">| Profit & Loss</span></h2>
                 <div class="profit-breakdown">
                     <div class="profit-item">
-                        <span class="label">Gross Sales</span>
-                        <span class="value positive">+61,031 SAR</span>
+                        <span class="label">إجمالي المبيعات</span>
+                        <span class="value positive">+61,031 ر.س</span>
                     </div>
                     <div class="profit-item">
-                        <span class="label">Discounts / Coupons</span>
-                        <span class="value negative">-1,351 SAR</span>
+                        <span class="label">الخصومات والكوبونات</span>
+                        <span class="value negative">-1,351 ر.س</span>
                     </div>
                     <div class="profit-item">
-                        <span class="label">Product Costs (COGS)</span>
-                        <span class="value negative">-45,812 SAR</span>
+                        <span class="label">تكلفة المنتجات</span>
+                        <span class="value negative">-45,812 ر.س</span>
                     </div>
                     <div class="profit-item">
-                        <span class="label">Shipping Costs</span>
-                        <span class="value negative">-629 SAR</span>
+                        <span class="label">تكلفة الشحن</span>
+                        <span class="value negative">-629 ر.س</span>
                     </div>
                     <div class="profit-item">
-                        <span class="label">Payment Fees</span>
-                        <span class="value negative">-522 SAR</span>
+                        <span class="label">رسوم الدفع الإلكتروني</span>
+                        <span class="value negative">-522 ر.س</span>
                     </div>
                     <div class="profit-item">
-                        <span class="label"><strong>Net Profit</strong></span>
-                        <span class="value positive"><strong>+12,717 SAR</strong></span>
+                        <span class="label"><strong>صافي الربح</strong></span>
+                        <span class="value positive"><strong>+12,717 ر.س</strong></span>
                     </div>
                 </div>
                 <div class="chart-container" style="height: 350px; margin-top: 30px;">
@@ -465,14 +693,14 @@
             <!-- Charts Row -->
             <div class="chart-row">
                 <div class="section">
-                    <h2>Sales by Channel <span class="ar">| المبيعات حسب القناة</span></h2>
+                    <h2>المبيعات حسب القناة <span class="en">| Sales by Channel</span></h2>
                     <div class="chart-container">
                         <canvas id="channelChart"></canvas>
                     </div>
                 </div>
 
                 <div class="section">
-                    <h2>Traffic by City <span class="ar">| الزيارات حسب المدينة</span></h2>
+                    <h2>الزيارات حسب المدينة <span class="en">| Traffic by City</span></h2>
                     <div class="chart-container">
                         <canvas id="cityChart"></canvas>
                     </div>
@@ -481,14 +709,14 @@
 
             <div class="chart-row">
                 <div class="section">
-                    <h2>Traffic Sources <span class="ar">| مصادر الزيارات</span></h2>
+                    <h2>مصادر الزيارات <span class="en">| Traffic Sources</span></h2>
                     <div class="chart-container">
                         <canvas id="trafficChart"></canvas>
                     </div>
                 </div>
 
                 <div class="section">
-                    <h2>Device Distribution <span class="ar">| توزيع الأجهزة</span></h2>
+                    <h2>توزيع الأجهزة <span class="en">| Devices</span></h2>
                     <div class="chart-container">
                         <canvas id="deviceChart"></canvas>
                     </div>
@@ -497,86 +725,86 @@
 
             <!-- Conversion Funnel -->
             <div class="section">
-                <h2>Conversion Funnel <span class="ar">| قمع التحويل</span></h2>
+                <h2>قمع التحويل <span class="en">| Conversion Funnel</span></h2>
                 <div class="conversion-funnel">
                     <div class="funnel-step" style="width: 100%; background: linear-gradient(90deg, rgba(6, 182, 212, 0.3), rgba(6, 182, 212, 0.1));">
                         <div class="number" style="color: #06b6d4;">67,964</div>
-                        <div class="label">Total Visits | اجمالي الزيارات</div>
+                        <div class="label">إجمالي الزيارات | Total Visits</div>
                     </div>
                     <div class="funnel-arrow">↓</div>
                     <div class="funnel-step" style="width: 70%; background: linear-gradient(90deg, rgba(168, 85, 247, 0.3), rgba(168, 85, 247, 0.1));">
                         <div class="number" style="color: #a855f7;">90</div>
-                        <div class="label">Orders Placed | الطلبات (0.13%)</div>
+                        <div class="label">الطلبات (0.13%) | Orders</div>
                     </div>
                     <div class="funnel-arrow">↓</div>
                     <div class="funnel-step" style="width: 55%; background: linear-gradient(90deg, rgba(34, 197, 94, 0.3), rgba(34, 197, 94, 0.1));">
                         <div class="number" style="color: #22c55e;">75</div>
-                        <div class="label">Completed (No Returns) | مكتمل</div>
+                        <div class="label">مكتمل بدون مرتجعات | Completed</div>
                     </div>
                 </div>
             </div>
 
             <!-- Top Products -->
             <div class="section">
-                <h2>Top Products by Profit <span class="ar">| المنتجات الأكثر ربحاً</span></h2>
+                <h2>المنتجات الأكثر ربحاً <span class="en">| Top Products by Profit</span></h2>
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Product | المنتج</th>
-                            <th>Orders | الطلبات</th>
-                            <th>Cost | التكلفة</th>
-                            <th>Revenue | الإيرادات</th>
-                            <th>Profit | الربح</th>
-                            <th>Margin</th>
+                            <th>المنتج</th>
+                            <th>الطلبات</th>
+                            <th>التكلفة</th>
+                            <th>الإيرادات</th>
+                            <th>الربح</th>
+                            <th>الهامش</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Smart Door Lock - External (خارجي)</td>
+                            <td>قفل ذكي خارجي - Smart Door Lock</td>
                             <td>50</td>
-                            <td>12,699 SAR</td>
-                            <td>24,065 SAR</td>
-                            <td class="profit-positive">+11,366 SAR</td>
+                            <td>12,699 ر.س</td>
+                            <td>24,065 ر.س</td>
+                            <td class="profit-positive">+11,366 ر.س</td>
                             <td class="profit-positive">47.2%</td>
                         </tr>
                         <tr>
-                            <td>Smart Door Lock - Internal (داخلي)</td>
+                            <td>قفل ذكي داخلي - Smart Door Lock</td>
                             <td>44</td>
-                            <td>7,832 SAR</td>
-                            <td>15,686 SAR</td>
-                            <td class="profit-positive">+7,854 SAR</td>
+                            <td>7,832 ر.س</td>
+                            <td>15,686 ر.س</td>
+                            <td class="profit-positive">+7,854 ر.س</td>
                             <td class="profit-positive">50.1%</td>
                         </tr>
                         <tr>
-                            <td>Smart Lock Card (كرت قفل ذكي)</td>
+                            <td>كرت قفل ذكي</td>
                             <td>81</td>
-                            <td>81 SAR</td>
-                            <td>405 SAR</td>
-                            <td class="profit-positive">+324 SAR</td>
+                            <td>81 ر.س</td>
+                            <td>405 ر.س</td>
+                            <td class="profit-positive">+324 ر.س</td>
                             <td class="profit-positive">80.0%</td>
                         </tr>
                         <tr>
-                            <td>Smart Lock Installation (تركيب قفل ذكي)</td>
+                            <td>خدمة تركيب قفل ذكي</td>
                             <td>2</td>
-                            <td>380 SAR</td>
-                            <td>380 SAR</td>
-                            <td>0 SAR</td>
+                            <td>380 ر.س</td>
+                            <td>380 ر.س</td>
+                            <td>0 ر.س</td>
                             <td>0%</td>
                         </tr>
                         <tr>
-                            <td>Bundle: Internal + External Lock (داخلي + خارجي)</td>
+                            <td>باقة قفل داخلي + خارجي</td>
                             <td>10</td>
-                            <td>7,100 SAR</td>
-                            <td>6,910 SAR</td>
-                            <td class="profit-negative">-190 SAR</td>
+                            <td>7,100 ر.س</td>
+                            <td>6,910 ر.س</td>
+                            <td class="profit-negative">-190 ر.س</td>
                             <td class="profit-negative">-2.8%</td>
                         </tr>
                         <tr>
-                            <td>2 Internal Locks + Free Lock (قفلين داخلية + مجاني)</td>
+                            <td>قفلين داخلية + قفل مجاني</td>
                             <td>16</td>
-                            <td>14,880 SAR</td>
-                            <td>10,640 SAR</td>
-                            <td class="profit-negative">-4,240 SAR</td>
+                            <td>14,880 ر.س</td>
+                            <td>10,640 ر.س</td>
+                            <td class="profit-negative">-4,240 ر.س</td>
                             <td class="profit-negative">-39.8%</td>
                         </tr>
                     </tbody>
@@ -585,140 +813,133 @@
 
             <!-- Key Insights -->
             <div class="section">
-                <h2>Key Insights <span class="ar">| الرؤى الرئيسية</span></h2>
+                <h2>الرؤى الرئيسية <span class="en">| Key Insights</span></h2>
                 <div class="insights-grid">
                     <div class="insight-card danger">
-                        <h3>Critical: Bundle Offers Losing Money</h3>
-                        <p>Your bundle offers (internal + external lock, 2 locks + free) are generating <strong>losses of -4,430 SAR</strong>. The "2 locks + free" bundle alone lost 4,240 SAR. These promotions are eroding your profits significantly.</p>
+                        <h3>⚠️ تحذير: عروض الباقات تخسر أموالاً</h3>
+                        <p>عروض الباقات (قفل داخلي + خارجي، قفلين + مجاني) تولد <strong>خسائر بقيمة -4,430 ر.س</strong>. باقة "قفلين + مجاني" وحدها خسرت 4,240 ر.س. هذه العروض تأكل من أرباحك بشكل كبير.</p>
                     </div>
 
                     <div class="insight-card danger">
-                        <h3>Critical: Very Low Conversion Rate</h3>
-                        <p>Your conversion rate is only <strong>0.13%</strong> (90 orders from 67,964 visits). Industry average for e-commerce is 1-3%. This indicates issues with pricing, user experience, or traffic quality.</p>
+                        <h3>⚠️ تحذير: معدل تحويل منخفض جداً</h3>
+                        <p>معدل التحويل <strong>0.13%</strong> فقط (90 طلب من 67,964 زيارة). المعدل الطبيعي للتجارة الإلكترونية 1-3%. هذا يشير لمشاكل في التسعير أو تجربة المستخدم أو جودة الزيارات.</p>
                     </div>
 
                     <div class="insight-card warning">
-                        <h3>Warning: High Return Rate</h3>
-                        <p>Return rate increased by <strong>39.17%</strong> to 16.7% (15 out of 90 orders). This is concerning and may indicate product quality issues or mismatched customer expectations.</p>
+                        <h3>⚡ تنبيه: معدل مرتجعات مرتفع</h3>
+                        <p>معدل المرتجعات ارتفع بنسبة <strong>39.17%</strong> ليصل إلى 16.7% (15 من 90 طلب). هذا مقلق وقد يشير لمشاكل في جودة المنتج أو توقعات العملاء.</p>
                     </div>
 
                     <div class="insight-card warning">
-                        <h3>Warning: Profit Margin Declining</h3>
-                        <p>Despite sales increasing 25.73%, net profit <strong>decreased by 27.52%</strong>. Your cost of goods sold increased 58.23% which is outpacing revenue growth. Gross margin is only 21.3%.</p>
+                        <h3>⚡ تنبيه: هامش الربح ينخفض</h3>
+                        <p>رغم زيادة المبيعات 25.73%، صافي الربح <strong>انخفض 27.52%</strong>. تكلفة المنتجات ارتفعت 58.23% وهي تتجاوز نمو الإيرادات. هامش الربح الإجمالي 21.3% فقط.</p>
                     </div>
 
                     <div class="insight-card success">
-                        <h3>Strength: Individual Products Profitable</h3>
-                        <p>External lock (47.2% margin) and Internal lock (50.1% margin) are healthy. Smart Lock Cards have an excellent <strong>80% profit margin</strong>. Focus on these products.</p>
+                        <h3>✅ نقطة قوة: المنتجات الفردية مربحة</h3>
+                        <p>القفل الخارجي (هامش 47.2%) والقفل الداخلي (هامش 50.1%) صحية. كروت القفل الذكي لديها <strong>هامش ربح 80%</strong> ممتاز. ركز على هذه المنتجات.</p>
                     </div>
 
                     <div class="insight-card success">
-                        <h3>Strength: Strong TikTok Traffic</h3>
-                        <p>TikTok drives <strong>51.4% of all traffic</strong> (34,961 visits). This is a strong marketing channel. Continue investing here but work on converting this traffic better.</p>
+                        <h3>✅ نقطة قوة: زيارات تيك توك قوية</h3>
+                        <p>تيك توك يجلب <strong>51.4% من كل الزيارات</strong> (34,961 زيارة). هذه قناة تسويقية قوية. استمر بالاستثمار فيها لكن اعمل على تحويل هذه الزيارات بشكل أفضل.</p>
                     </div>
 
                     <div class="insight-card">
-                        <h3>Insight: Mobile-First Audience</h3>
-                        <p><strong>89.2% of visitors use mobile devices</strong>. Ensure your store is fully optimized for mobile experience, fast loading, and easy checkout on phones.</p>
+                        <h3>📱 ملاحظة: جمهور الجوال أولاً</h3>
+                        <p><strong>89.2% من الزوار يستخدمون الجوال</strong>. تأكد أن متجرك محسن بالكامل لتجربة الجوال، سرعة التحميل، وسهولة الدفع من الهاتف.</p>
                     </div>
 
                     <div class="insight-card">
-                        <h3>Insight: Geographic Distribution</h3>
-                        <p>Top markets: <strong>Jeddah (30.4%)</strong>, Riyadh (27.6%), Dammam (13%). Consider targeted campaigns and faster delivery options for these cities.</p>
+                        <h3>📍 ملاحظة: التوزيع الجغرافي</h3>
+                        <p>أعلى الأسواق: <strong>جدة (30.4%)</strong>، الرياض (27.6%)، الدمام (13%). فكر في حملات مستهدفة وخيارات توصيل أسرع لهذه المدن.</p>
                     </div>
                 </div>
             </div>
 
             <!-- Recommendations -->
             <div class="section">
-                <h2>Actionable Recommendations <span class="ar">| التوصيات</span></h2>
+                <h2>التوصيات <span class="en">| Recommendations</span></h2>
                 <ul class="recommendation-list">
-                    <li><strong>URGENT - Remove or Reprice Bundle Offers:</strong> Immediately discontinue the "2 locks + free lock" bundle. It's losing 4,240 SAR. Either increase the price to at least 1,150 SAR or remove it. Review all bundle pricing to ensure at least 20% profit margin.</li>
+                    <li><strong>عاجل - أزل أو أعد تسعير عروض الباقات:</strong> أوقف فوراً باقة "قفلين + قفل مجاني". إنها تخسر 4,240 ر.س. إما ارفع السعر لـ 1,150 ر.س على الأقل أو احذفها. راجع كل أسعار الباقات لضمان هامش ربح 20% على الأقل.</li>
 
-                    <li><strong>URGENT - Investigate Returns:</strong> With 16.7% return rate, contact customers who returned products to understand why. Common issues could be: installation difficulty, product not matching description, or quality concerns. Address root cause immediately.</li>
+                    <li><strong>عاجل - تحقق من المرتجعات:</strong> مع معدل مرتجعات 16.7%، تواصل مع العملاء الذين أرجعوا المنتجات لفهم السبب. المشاكل الشائعة: صعوبة التركيب، المنتج لا يطابق الوصف، أو مخاوف الجودة.</li>
 
-                    <li><strong>Improve Conversion Rate:</strong> With only 0.13% conversion, focus on:
-                        <br>- Add customer reviews/testimonials prominently
-                        <br>- Offer installation service as an add-on at checkout
-                        <br>- Add product videos showing ease of use
-                        <br>- Implement exit-intent popups with discount codes
-                        <br>- Ensure fast page load times on mobile</li>
+                    <li><strong>حسّن معدل التحويل:</strong> مع 0.13% فقط، ركز على:
+                        <br>- أضف تقييمات العملاء بشكل بارز
+                        <br>- قدم خدمة التركيب كإضافة عند الدفع
+                        <br>- أضف فيديوهات للمنتج توضح سهولة الاستخدام
+                        <br>- طبق عروض للزوار المغادرين
+                        <br>- تأكد من سرعة تحميل الصفحات على الجوال</li>
 
-                    <li><strong>Optimize TikTok Campaigns:</strong> Since TikTok drives 51% of traffic but conversion is low, ensure your ads target potential buyers (homeowners, not just viewers). Use retargeting to bring back visitors who didn't purchase.</li>
+                    <li><strong>حسّن حملات تيك توك:</strong> بما أن تيك توك يجلب 51% من الزيارات لكن التحويل منخفض، تأكد أن إعلاناتك تستهدف المشترين المحتملين (أصحاب المنازل، ليس فقط المشاهدين). استخدم إعادة الاستهداف للزوار الذين لم يشتروا.</li>
 
-                    <li><strong>Upsell Smart Lock Cards:</strong> These have 80% margin. Promote them as add-ons during checkout ("Add spare cards for your family"). Bundle 5 cards with locks at a slight discount while maintaining 60%+ margin.</li>
+                    <li><strong>روّج لكروت القفل الذكي:</strong> هامش ربحها 80%. روّج لها كإضافات عند الدفع ("أضف كروت احتياطية لعائلتك"). اجمع 5 كروت مع الأقفال بخصم بسيط مع الحفاظ على هامش 60%+.</li>
 
-                    <li><strong>Installation Service Strategy:</strong> Installation service shows 0% profit. Either:
-                        <br>- Price it higher (most customers will pay for convenience)
-                        <br>- Partner with local technicians for referral fees instead of handling directly
-                        <br>- Use it as a paid add-on that improves conversion</li>
-
-                    <li><strong>Focus on Jeddah & Riyadh:</strong> These cities represent 58% of your traffic. Consider:
-                        <br>- Same-day delivery options
-                        <br>- Local installation partnerships
-                        <br>- City-specific promotions</li>
-
-                    <li><strong>Review Supplier Costs:</strong> COGS increased 58% while revenue only grew 26%. Negotiate better rates with suppliers or find alternative sources. Every 5% reduction in COGS adds ~2,300 SAR to profit.</li>
+                    <li><strong>ركز على جدة والرياض:</strong> هذه المدن تمثل 58% من زياراتك. فكر في:
+                        <br>- خيارات توصيل نفس اليوم
+                        <br>- شراكات تركيب محلية
+                        <br>- عروض خاصة لكل مدينة</li>
                 </ul>
             </div>
 
             <!-- Financial Summary -->
             <div class="section">
-                <h2>Weekly Financial Summary <span class="ar">| ملخص الأسبوع المالي</span></h2>
+                <h2>ملخص الأسبوع المالي <span class="en">| Financial Summary</span></h2>
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Metric</th>
-                            <th>Value (SAR)</th>
-                            <th>% of Revenue</th>
-                            <th>Change vs Previous</th>
+                            <th>البند</th>
+                            <th>القيمة (ر.س)</th>
+                            <th>% من الإيرادات</th>
+                            <th>التغير</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Gross Sales (اجمالي المبيعات)</td>
+                            <td>إجمالي المبيعات</td>
                             <td>61,031</td>
                             <td>102.3%</td>
                             <td class="profit-positive">+28.43%</td>
                         </tr>
                         <tr>
-                            <td>Discounts (كوبونات التخفيض)</td>
+                            <td>الخصومات</td>
                             <td>-1,351</td>
                             <td>-2.3%</td>
                             <td class="profit-negative">+2,407%</td>
                         </tr>
                         <tr>
-                            <td>Net Sales (صافي المبيعات)</td>
+                            <td>صافي المبيعات</td>
                             <td>59,680</td>
                             <td>100%</td>
                             <td class="profit-positive">+25.73%</td>
                         </tr>
                         <tr>
-                            <td>Cost of Goods Sold (تكاليف المنتجات)</td>
+                            <td>تكلفة المنتجات</td>
                             <td>-45,812</td>
                             <td>-76.8%</td>
                             <td class="profit-negative">+58.23%</td>
                         </tr>
                         <tr>
-                            <td>Gross Profit (اجمالي الربح)</td>
+                            <td>إجمالي الربح</td>
                             <td>13,868</td>
                             <td>23.2%</td>
                             <td>-</td>
                         </tr>
                         <tr>
-                            <td>Shipping (الشحن)</td>
+                            <td>الشحن</td>
                             <td>-629</td>
                             <td>-1.1%</td>
                             <td class="profit-negative">+9.01%</td>
                         </tr>
                         <tr>
-                            <td>Payment Fees (رسوم الدفع)</td>
+                            <td>رسوم الدفع</td>
                             <td>-522</td>
                             <td>-0.9%</td>
                             <td class="profit-negative">+33.99%</td>
                         </tr>
                         <tr style="background: rgba(34, 197, 94, 0.1);">
-                            <td><strong>Net Profit (صافي الربح)</strong></td>
+                            <td><strong>صافي الربح</strong></td>
                             <td><strong>12,717</strong></td>
                             <td><strong>21.3%</strong></td>
                             <td class="profit-negative"><strong>-27.52%</strong></td>
@@ -727,6 +948,41 @@
                 </table>
             </div>
         </div>
+    </div>
+
+    <!-- AI Chat Widget -->
+    <div class="chat-container">
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-header">
+                <div class="avatar">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                </div>
+                <div class="info">
+                    <h3>مساعد قفلة الذكي</h3>
+                    <p>اسألني أي سؤال عن التقرير</p>
+                </div>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    مرحباً! 👋 أنا مساعد قفلة الذكي. يمكنني الإجابة على أسئلتك حول التقرير المالي. اسألني عن المبيعات، الأرباح، المنتجات، أو أي شيء آخر!
+                </div>
+            </div>
+            <div class="quick-questions">
+                <button class="quick-btn" onclick="askQuestion('ليش صافي الربح انخفض؟')">ليش الربح انخفض؟</button>
+                <button class="quick-btn" onclick="askQuestion('ايش أفضل منتج؟')">أفضل منتج؟</button>
+                <button class="quick-btn" onclick="askQuestion('كيف أزيد المبيعات؟')">كيف أزيد المبيعات؟</button>
+                <button class="quick-btn" onclick="askQuestion('ليش المرتجعات عالية؟')">المرتجعات؟</button>
+            </div>
+            <div class="chat-input-container">
+                <input type="text" class="chat-input" id="chatInput" placeholder="اكتب سؤالك هنا..." onkeypress="handleKeyPress(event)">
+                <button class="chat-send" onclick="sendMessage()">
+                    <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                </button>
+            </div>
+        </div>
+        <button class="chat-toggle" onclick="toggleChat()">
+            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/></svg>
+        </button>
     </div>
 
     <script>
@@ -738,9 +994,9 @@
         new Chart(document.getElementById('profitChart'), {
             type: 'bar',
             data: {
-                labels: ['Gross Sales', 'Discounts', 'COGS', 'Shipping', 'Payment Fees', 'Net Profit'],
+                labels: ['إجمالي المبيعات', 'الخصومات', 'تكلفة المنتجات', 'الشحن', 'رسوم الدفع', 'صافي الربح'],
                 datasets: [{
-                    label: 'Amount (SAR)',
+                    label: 'المبلغ (ر.س)',
                     data: [61031, -1351, -45812, -629, -522, 12717],
                     backgroundColor: [
                         'rgba(34, 197, 94, 0.7)',
@@ -783,7 +1039,7 @@
         new Chart(document.getElementById('channelChart'), {
             type: 'doughnut',
             data: {
-                labels: ['Store (المتجر)', 'Dashboard (الداشبورد)', 'Mobile Browser', 'Local (محلي)'],
+                labels: ['المتجر', 'الداشبورد', 'متصفح الجوال', 'محلي'],
                 datasets: [{
                     data: [41669, 16940, 535, 535],
                     backgroundColor: [
@@ -811,7 +1067,7 @@
         new Chart(document.getElementById('cityChart'), {
             type: 'doughnut',
             data: {
-                labels: ['Jeddah', 'Riyadh', 'Dammam', 'Madinah', 'Makkah', 'Other'],
+                labels: ['جدة', 'الرياض', 'الدمام', 'المدينة', 'مكة', 'أخرى'],
                 datasets: [{
                     data: [20631, 18733, 8868, 6454, 1701, 11577],
                     backgroundColor: [
@@ -841,9 +1097,9 @@
         new Chart(document.getElementById('trafficChart'), {
             type: 'bar',
             data: {
-                labels: ['TikTok', 'pangleglobal.com', 'Facebook', 'Direct', 'm.facebook.com'],
+                labels: ['تيك توك', 'pangleglobal.com', 'فيسبوك', 'مباشر', 'm.facebook.com'],
                 datasets: [{
-                    label: 'Visits',
+                    label: 'الزيارات',
                     data: [34961, 13088, 4195, 3823, 3530],
                     backgroundColor: 'rgba(168, 85, 247, 0.7)',
                     borderColor: 'rgba(168, 85, 247, 1)',
@@ -872,7 +1128,7 @@
         new Chart(document.getElementById('deviceChart'), {
             type: 'doughnut',
             data: {
-                labels: ['Mobile (89.2%)', 'Tablet (8.3%)', 'Desktop (2.6%)'],
+                labels: ['جوال (89.2%)', 'تابلت (8.3%)', 'كمبيوتر (2.6%)'],
                 datasets: [{
                     data: [60034, 5563, 1753],
                     backgroundColor: [
@@ -895,6 +1151,322 @@
             }
         });
 
+        // AI Chat Functions
+        const reportData = {
+            grossSales: 61031,
+            netSales: 59680,
+            netProfit: 12717,
+            profitMargin: 21.3,
+            orders: 90,
+            returns: 15,
+            returnRate: 16.7,
+            aov: 664,
+            visits: 67964,
+            conversionRate: 0.13,
+            cogs: 45812,
+            shipping: 629,
+            paymentFees: 522,
+            discounts: 1351,
+            topCity: 'جدة',
+            topCityPercent: 30.4,
+            topSource: 'تيك توك',
+            topSourcePercent: 51.4,
+            mobilePercent: 89.2,
+            bestProduct: 'قفل ذكي خارجي',
+            bestProductProfit: 11366,
+            worstBundle: 'قفلين داخلية + قفل مجاني',
+            worstBundleLoss: -4240
+        };
+
+        function getAIResponse(question) {
+            const q = question.toLowerCase();
+
+            // Profit questions
+            if (q.includes('ربح') && (q.includes('انخفض') || q.includes('نزل') || q.includes('قل') || q.includes('ليش') || q.includes('لماذا'))) {
+                return `صافي الربح انخفض بنسبة 27.52% رغم زيادة المبيعات، والأسباب الرئيسية:
+
+1️⃣ **تكلفة المنتجات ارتفعت 58.23%** - من أكبر الأسباب، التكاليف زادت أسرع من الإيرادات
+
+2️⃣ **عروض الباقات تخسر** - باقة "قفلين + مجاني" خسرت 4,240 ر.س وحدها
+
+3️⃣ **الخصومات زادت 2,407%** - استخدام الكوبونات زاد بشكل كبير جداً
+
+4️⃣ **المرتجعات ارتفعت 39%** - 15 طلب مرتجع من 90
+
+💡 **الحل:** راجع أسعار الموردين، أوقف الباقات الخاسرة، وقلل الخصومات.`;
+            }
+
+            if (q.includes('ربح') || q.includes('صافي') || q.includes('profit')) {
+                return `📊 **معلومات الربح:**
+
+• صافي الربح: **12,717 ر.س**
+• هامش الربح: **21.3%**
+• إجمالي المبيعات: 61,031 ر.س
+• صافي المبيعات (بعد الخصومات): 59,680 ر.س
+
+⚠️ الربح انخفض 27.52% مقارنة بالفترة السابقة بسبب ارتفاع التكاليف وعروض الباقات الخاسرة.`;
+            }
+
+            // Best product
+            if (q.includes('أفضل') || q.includes('افضل') || q.includes('أحسن') || q.includes('منتج') && q.includes('ربح')) {
+                return `🏆 **أفضل المنتجات ربحاً:**
+
+1. **قفل ذكي خارجي** - ربح 11,366 ر.س (هامش 47.2%) - 50 طلب
+2. **قفل ذكي داخلي** - ربح 7,854 ر.س (هامش 50.1%) - 44 طلب
+3. **كرت قفل ذكي** - ربح 324 ر.س (هامش 80%!) - 81 طلب
+
+💡 كروت القفل الذكي عندها أعلى هامش ربح، روّج لها كإضافات!
+
+⚠️ تجنب باقة "قفلين + مجاني" - تخسر 4,240 ر.س`;
+            }
+
+            // Sales increase
+            if (q.includes('زيد') || q.includes('زود') || q.includes('رفع') || q.includes('مبيعات') || q.includes('تحويل')) {
+                return `📈 **كيف تزيد المبيعات:**
+
+معدل التحويل حالياً **0.13%** فقط (المعدل الطبيعي 1-3%)
+
+**خطوات عملية:**
+1. ✅ أضف تقييمات العملاء بشكل بارز
+2. ✅ أضف فيديوهات توضح سهولة التركيب
+3. ✅ قدم خدمة التركيب كإضافة مدفوعة
+4. ✅ حسّن سرعة الموقع على الجوال (89% من الزوار على الجوال)
+5. ✅ استخدم إعادة استهداف زوار تيك توك
+6. ✅ قدم ضمان استرجاع لتقليل التردد
+
+💡 لو رفعت التحويل لـ 1% فقط = 680 طلب بدل 90!`;
+            }
+
+            // Returns
+            if (q.includes('مرتجع') || q.includes('إرجاع') || q.includes('ارجاع') || q.includes('returns')) {
+                return `📦 **معلومات المرتجعات:**
+
+• معدل المرتجعات: **16.7%** (15 من 90 طلب)
+• التغير: ارتفع **39.17%** عن الفترة السابقة
+
+**الأسباب المحتملة:**
+• صعوبة التركيب
+• المنتج لا يطابق الوصف أو الصور
+• مشاكل في الجودة
+• توقعات العملاء غير واضحة
+
+💡 **الحل:** تواصل مع العملاء الـ15 الذين أرجعوا واسألهم عن السبب مباشرة.`;
+            }
+
+            // Traffic / Visits
+            if (q.includes('زيار') || q.includes('ترافيك') || q.includes('traffic') || q.includes('مصدر')) {
+                return `🌐 **مصادر الزيارات:**
+
+إجمالي الزيارات: **67,964** زيارة
+
+**أعلى المصادر:**
+1. تيك توك: 34,961 (51.4%) 🥇
+2. pangleglobal.com: 13,088 (19.3%)
+3. فيسبوك: 4,195 (6.2%)
+4. مباشر: 3,823 (5.6%)
+5. m.facebook.com: 3,530 (5.2%)
+
+💡 تيك توك يجلب نصف الزيارات! استمر بالاستثمار فيه لكن حسّن جودة الإعلانات لاستهداف المشترين الجادين.`;
+            }
+
+            // Cities
+            if (q.includes('مدن') || q.includes('مدينة') || q.includes('جدة') || q.includes('رياض') || q.includes('مناطق')) {
+                return `📍 **توزيع الزيارات حسب المدينة:**
+
+إجمالي: 67,964 زيارة
+
+1. **جدة:** 20,631 (30.4%) 🥇
+2. **الرياض:** 18,733 (27.6%) 🥈
+3. **الدمام:** 8,868 (13%)
+4. **المدينة:** 6,454 (9.5%)
+5. **مكة:** 1,701 (2.5%)
+6. **أخرى:** 11,577 (17%)
+
+💡 جدة والرياض = 58% من زياراتك. ركز عليهم بعروض خاصة وتوصيل سريع!`;
+            }
+
+            // Devices
+            if (q.includes('جهاز') || q.includes('جوال') || q.includes('موبايل') || q.includes('كمبيوتر')) {
+                return `📱 **توزيع الأجهزة:**
+
+• **جوال:** 60,034 (89.2%) 📱
+• **تابلت:** 5,563 (8.3%)
+• **كمبيوتر:** 1,753 (2.6%)
+
+💡 **مهم جداً:** 89% من زوارك على الجوال!
+
+تأكد من:
+✅ سرعة تحميل الموقع على الجوال
+✅ سهولة التصفح والشراء
+✅ أزرار واضحة وكبيرة
+✅ عملية دفع بسيطة`;
+            }
+
+            // Bundles / Offers
+            if (q.includes('باق') || q.includes('عرض') || q.includes('عروض') || q.includes('خسار')) {
+                return `⚠️ **مشكلة عروض الباقات:**
+
+**الباقات الخاسرة:**
+1. قفلين داخلية + قفل مجاني: **-4,240 ر.س** (16 طلب)
+2. باقة قفل داخلي + خارجي: **-190 ر.س** (10 طلب)
+
+**إجمالي الخسارة:** -4,430 ر.س
+
+💡 **الحل العاجل:**
+• أوقف باقة "قفلين + مجاني" فوراً
+• أعد تسعير الباقات بهامش 20% على الأقل
+• أو احذف "المجاني" واستبدله بخصم بسيط`;
+            }
+
+            // Orders
+            if (q.includes('طلب') || q.includes('orders') || q.includes('كم طلب')) {
+                return `📦 **معلومات الطلبات:**
+
+• إجمالي الطلبات: **90** طلب
+• الطلبات المكتملة: **75** طلب
+• المرتجعات: **15** طلب (16.7%)
+• متوسط قيمة الطلب: **664 ر.س**
+
+**توزيع القنوات:**
+• المتجر: 73 طلب (41,669 ر.س)
+• الداشبورد: 15 طلب (16,940 ر.س)
+• أخرى: 2 طلب`;
+            }
+
+            // Costs
+            if (q.includes('تكلف') || q.includes('تكاليف') || q.includes('مصاريف') || q.includes('costs')) {
+                return `💰 **تفصيل التكاليف:**
+
+من إجمالي المبيعات 61,031 ر.س:
+
+1. **تكلفة المنتجات:** 45,812 ر.س (76.8%) ⚠️
+2. **الخصومات:** 1,351 ر.س (2.3%)
+3. **الشحن:** 629 ر.س (1.1%)
+4. **رسوم الدفع:** 522 ر.س (0.9%)
+
+**المتبقي (صافي الربح):** 12,717 ر.س (21.3%)
+
+⚠️ تكلفة المنتجات مرتفعة جداً (76.8%)! حاول التفاوض مع الموردين.`;
+            }
+
+            // Discounts
+            if (q.includes('خصم') || q.includes('كوبون') || q.includes('تخفيض')) {
+                return `🏷️ **معلومات الخصومات:**
+
+• إجمالي الخصومات: **1,351 ر.س**
+• نسبة من المبيعات: **2.3%**
+• التغير: ارتفعت **2,407%** عن الفترة السابقة! ⚠️
+
+💡 الخصومات زادت بشكل كبير جداً. راجع:
+• هل الكوبونات ضرورية؟
+• هل يمكن تقليل نسبة الخصم؟
+• هل تستهدف العملاء الصحيحين؟`;
+            }
+
+            // TikTok
+            if (q.includes('تيك') || q.includes('tiktok')) {
+                return `📱 **أداء تيك توك:**
+
+• الزيارات من تيك توك: **34,961** (51.4% من الإجمالي)
+• أكبر مصدر للزيارات! 🥇
+
+**لكن المشكلة:**
+معدل التحويل منخفض (0.13%)
+
+💡 **نصائح لتحسين تيك توك:**
+1. استهدف أصحاب المنازل والشقق الجديدة
+2. أظهر سهولة التركيب في الفيديوهات
+3. استخدم إعادة الاستهداف للزوار
+4. أضف عروض خاصة لمتابعي تيك توك
+5. تعاون مع مؤثرين في مجال المنازل`;
+            }
+
+            // General greeting
+            if (q.includes('مرحبا') || q.includes('هلا') || q.includes('السلام')) {
+                return `أهلاً وسهلاً! 👋
+
+أنا مساعد قفلة الذكي، جاهز أساعدك تفهم تقريرك المالي.
+
+**يمكنك تسألني عن:**
+• الأرباح والخسائر
+• أفضل المنتجات
+• مصادر الزيارات
+• المدن والمناطق
+• المرتجعات
+• كيف تزيد المبيعات
+
+اسألني أي سؤال! 😊`;
+            }
+
+            // Default response
+            return `🤔 سؤال جيد!
+
+بناءً على التقرير، إليك أهم المعلومات:
+
+📊 **ملخص سريع:**
+• المبيعات: 61,031 ر.س (+28%)
+• صافي الربح: 12,717 ر.س (-27.5%)
+• الطلبات: 90 طلب
+• الزيارات: 67,964 زيارة
+• معدل التحويل: 0.13%
+
+💡 **أهم التحديات:**
+1. تكلفة المنتجات مرتفعة (76.8%)
+2. عروض الباقات تخسر
+3. معدل التحويل منخفض جداً
+
+هل تريد تفاصيل أكثر عن موضوع معين؟`;
+        }
+
+        function toggleChat() {
+            const chatWindow = document.getElementById('chatWindow');
+            chatWindow.classList.toggle('open');
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessage(message, 'user');
+            input.value = '';
+
+            // Show typing indicator
+            const messagesContainer = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.innerHTML = '<span></span><span></span><span></span>';
+            messagesContainer.appendChild(typingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // Simulate AI thinking
+            setTimeout(() => {
+                typingDiv.remove();
+                const response = getAIResponse(message);
+                addMessage(response, 'bot');
+            }, 1000 + Math.random() * 500);
+        }
+
+        function addMessage(text, sender) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function askQuestion(question) {
+            document.getElementById('chatInput').value = question;
+            sendMessage();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
         // Export Functions
         function exportToPDF() {
             const element = document.getElementById('dashboard-content');
@@ -909,65 +1481,39 @@
         }
 
         function exportToExcel() {
-            // Create CSV content
-            let csv = 'Gaflah.com Financial Report - Jan 20-26, 2025\n\n';
+            let csv = 'تقرير قفلة المالي - يناير 20-26، 2025\n\n';
 
-            csv += 'KEY METRICS\n';
-            csv += 'Metric,Value,Change\n';
-            csv += 'Gross Sales,61031 SAR,+28.43%\n';
-            csv += 'Net Sales,59680 SAR,+25.73%\n';
-            csv += 'Net Profit,12717 SAR,-27.52%\n';
-            csv += 'Total Orders,90,\n';
-            csv += 'Average Order Value,664 SAR,-7.62%\n';
-            csv += 'Return Rate,16.7%,+39.17%\n';
-            csv += 'Total Visits,67964,\n';
-            csv += 'Conversion Rate,0.13%,\n\n';
+            csv += 'المؤشرات الرئيسية\n';
+            csv += 'المؤشر,القيمة,التغير\n';
+            csv += 'إجمالي المبيعات,61031 ر.س,+28.43%\n';
+            csv += 'صافي المبيعات,59680 ر.س,+25.73%\n';
+            csv += 'صافي الربح,12717 ر.س,-27.52%\n';
+            csv += 'عدد الطلبات,90,\n';
+            csv += 'متوسط قيمة الطلب,664 ر.س,-7.62%\n';
+            csv += 'معدل المرتجعات,16.7%,+39.17%\n';
+            csv += 'إجمالي الزيارات,67964,\n';
+            csv += 'معدل التحويل,0.13%,\n\n';
 
-            csv += 'PROFIT & LOSS\n';
-            csv += 'Item,Amount (SAR),% of Revenue\n';
-            csv += 'Gross Sales,61031,102.3%\n';
-            csv += 'Discounts,-1351,-2.3%\n';
-            csv += 'Net Sales,59680,100%\n';
-            csv += 'Cost of Goods Sold,-45812,-76.8%\n';
-            csv += 'Shipping,-629,-1.1%\n';
-            csv += 'Payment Fees,-522,-0.9%\n';
-            csv += 'Net Profit,12717,21.3%\n\n';
+            csv += 'الأرباح والخسائر\n';
+            csv += 'البند,المبلغ (ر.س),% من الإيرادات\n';
+            csv += 'إجمالي المبيعات,61031,102.3%\n';
+            csv += 'الخصومات,-1351,-2.3%\n';
+            csv += 'صافي المبيعات,59680,100%\n';
+            csv += 'تكلفة المنتجات,-45812,-76.8%\n';
+            csv += 'الشحن,-629,-1.1%\n';
+            csv += 'رسوم الدفع,-522,-0.9%\n';
+            csv += 'صافي الربح,12717,21.3%\n\n';
 
-            csv += 'TOP PRODUCTS\n';
-            csv += 'Product,Orders,Cost,Revenue,Profit,Margin\n';
-            csv += 'Smart Door Lock External,50,12699,24065,11366,47.2%\n';
-            csv += 'Smart Door Lock Internal,44,7832,15686,7854,50.1%\n';
-            csv += 'Smart Lock Card,81,81,405,324,80%\n';
-            csv += 'Installation Service,2,380,380,0,0%\n';
-            csv += 'Bundle Internal+External,10,7100,6910,-190,-2.8%\n';
-            csv += '2 Locks + Free Lock,16,14880,10640,-4240,-39.8%\n\n';
+            csv += 'أفضل المنتجات\n';
+            csv += 'المنتج,الطلبات,التكلفة,الإيرادات,الربح,الهامش\n';
+            csv += 'قفل ذكي خارجي,50,12699,24065,11366,47.2%\n';
+            csv += 'قفل ذكي داخلي,44,7832,15686,7854,50.1%\n';
+            csv += 'كرت قفل ذكي,81,81,405,324,80%\n';
+            csv += 'خدمة التركيب,2,380,380,0,0%\n';
+            csv += 'باقة داخلي+خارجي,10,7100,6910,-190,-2.8%\n';
+            csv += 'قفلين + مجاني,16,14880,10640,-4240,-39.8%\n\n';
 
-            csv += 'SALES BY CHANNEL\n';
-            csv += 'Channel,Orders,Revenue (SAR)\n';
-            csv += 'Store,73,41669\n';
-            csv += 'Dashboard,15,16940\n';
-            csv += 'Mobile Browser,1,535\n';
-            csv += 'Local,1,535\n\n';
-
-            csv += 'TRAFFIC BY CITY\n';
-            csv += 'City,Visits,Percentage\n';
-            csv += 'Jeddah,20631,30.4%\n';
-            csv += 'Riyadh,18733,27.6%\n';
-            csv += 'Dammam,8868,13%\n';
-            csv += 'Madinah,6454,9.5%\n';
-            csv += 'Makkah,1701,2.5%\n';
-            csv += 'Other,11577,17%\n\n';
-
-            csv += 'TRAFFIC SOURCES\n';
-            csv += 'Source,Visits,Percentage\n';
-            csv += 'TikTok,34961,51.4%\n';
-            csv += 'pangleglobal.com,13088,19.3%\n';
-            csv += 'Facebook,4195,6.2%\n';
-            csv += 'Direct,3823,5.6%\n';
-            csv += 'm.facebook.com,3530,5.2%\n';
-
-            // Download CSV
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = 'Gaflah_Report_Jan2025.csv';
