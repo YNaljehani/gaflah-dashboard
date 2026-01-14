@@ -16,7 +16,7 @@
 
         body {
             font-family: 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(135deg, #0a1a1a 0%, #0d2626 100%);
             min-height: 100vh;
             color: #fff;
             padding: 20px;
@@ -28,11 +28,19 @@
             margin-bottom: 30px;
         }
 
+        .header .logo {
+            height: 60px;
+            width: auto;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 4px 6px rgba(0, 146, 146, 0.3));
+        }
+
         .header h1 {
             font-size: 2.5rem;
-            background: linear-gradient(90deg, #00d4ff, #7c3aed);
+            background: linear-gradient(90deg, #26b8b8, #009292);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin-bottom: 10px;
         }
 
@@ -77,7 +85,7 @@
         }
 
         .export-btn.chat {
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            background: linear-gradient(135deg, #26b8b8, #009292);
             color: white;
         }
 
@@ -147,12 +155,12 @@
             color: #ef4444;
         }
 
-        .kpi-card.revenue .value { color: #00d4ff; }
+        .kpi-card.revenue .value { color: #26b8b8; }
         .kpi-card.profit .value { color: #22c55e; }
-        .kpi-card.orders .value { color: #a855f7; }
+        .kpi-card.orders .value { color: #009292; }
         .kpi-card.aov .value { color: #f59e0b; }
         .kpi-card.returns .value { color: #ef4444; }
-        .kpi-card.visits .value { color: #06b6d4; }
+        .kpi-card.visits .value { color: #26b8b8; }
 
         .section {
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
@@ -210,7 +218,7 @@
         }
 
         .data-table tr:hover {
-            background: rgba(59, 130, 246, 0.1);
+            background: rgba(0, 146, 146, 0.1);
         }
 
         .data-table .profit-positive {
@@ -228,10 +236,10 @@
         }
 
         .insight-card {
-            background: rgba(59, 130, 246, 0.1);
+            background: rgba(0, 146, 146, 0.1);
             border-radius: 12px;
             padding: 20px;
-            border-right: 4px solid #3b82f6;
+            border-right: 4px solid #009292;
         }
 
         .insight-card.warning {
@@ -268,15 +276,15 @@
         .recommendation-list li {
             padding: 15px;
             margin-bottom: 10px;
-            background: rgba(139, 92, 246, 0.1);
+            background: rgba(0, 146, 146, 0.1);
             border-radius: 8px;
-            border-right: 3px solid #8b5cf6;
+            border-right: 3px solid #009292;
             color: #e2e8f0;
             line-height: 1.8;
         }
 
         .recommendation-list li strong {
-            color: #a855f7;
+            color: #26b8b8;
         }
 
         .profit-breakdown {
@@ -357,13 +365,13 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            background: linear-gradient(135deg, #26b8b8, #009292);
             border: none;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 146, 146, 0.4);
             transition: all 0.3s ease;
         }
 
@@ -398,7 +406,7 @@
 
         .chat-header {
             padding: 15px 20px;
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            background: linear-gradient(135deg, #26b8b8, #009292);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -449,13 +457,13 @@
         }
 
         .message.bot {
-            background: rgba(139, 92, 246, 0.2);
+            background: rgba(0, 146, 146, 0.2);
             align-self: flex-start;
             border-bottom-right-radius: 4px;
         }
 
         .message.user {
-            background: rgba(59, 130, 246, 0.3);
+            background: rgba(38, 184, 184, 0.3);
             align-self: flex-end;
             border-bottom-left-radius: 4px;
         }
@@ -480,7 +488,7 @@
         }
 
         .chat-input:focus {
-            border-color: #8b5cf6;
+            border-color: #009292;
         }
 
         .chat-input::placeholder {
@@ -491,7 +499,7 @@
             width: 45px;
             height: 45px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            background: linear-gradient(135deg, #26b8b8, #009292);
             border: none;
             cursor: pointer;
             display: flex;
@@ -522,9 +530,9 @@
         .quick-btn {
             padding: 6px 12px;
             border-radius: 15px;
-            background: rgba(139, 92, 246, 0.2);
-            border: 1px solid rgba(139, 92, 246, 0.3);
-            color: #c4b5fd;
+            background: rgba(0, 146, 146, 0.2);
+            border: 1px solid rgba(0, 146, 146, 0.3);
+            color: #ccffff;
             font-size: 0.75rem;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -532,14 +540,14 @@
         }
 
         .quick-btn:hover {
-            background: rgba(139, 92, 246, 0.4);
+            background: rgba(0, 146, 146, 0.4);
         }
 
         .typing-indicator {
             display: flex;
             gap: 4px;
             padding: 12px 15px;
-            background: rgba(139, 92, 246, 0.2);
+            background: rgba(0, 146, 146, 0.2);
             border-radius: 12px;
             width: fit-content;
         }
@@ -547,7 +555,7 @@
         .typing-indicator span {
             width: 8px;
             height: 8px;
-            background: #8b5cf6;
+            background: #009292;
             border-radius: 50%;
             animation: typing 1.4s infinite;
         }
@@ -593,6 +601,7 @@
 <body>
     <div id="dashboard-content">
         <div class="header">
+            <img src="https://cdn.salla.sa/vxEla/6x4cX2v2zWBqFoxbdknXV3EfQk5vKZosdLFmQU9L.png" alt="Gaflah Logo" class="logo">
             <h1>لوحة تحكم قفلة المالية</h1>
             <div class="subtitle">Gaflah.com - Smart Lock E-Commerce Analytics</div>
             <div class="period">فترة التحليل: 20-26 يناير 2025 | المنصة: سلة</div>
@@ -615,7 +624,7 @@
 
                 <div class="kpi-card">
                     <div class="label">صافي المبيعات <span class="label-en">| Net Sales</span></div>
-                    <div class="value" style="color: #38bdf8;">59,680 ر.س</div>
+                    <div class="value" style="color: #009292;">59,680 ر.س</div>
                     <div class="change positive">+25.73% مقارنة بالفترة السابقة</div>
                 </div>
 
@@ -651,7 +660,7 @@
 
                 <div class="kpi-card">
                     <div class="label">معدل التحويل <span class="label-en">| Conversion Rate</span></div>
-                    <div class="value" style="color: #f97316;">0.13%</div>
+                    <div class="value" style="color: #26b8b8;">0.13%</div>
                     <div class="change negative">90 طلب / 67,964 زيارة</div>
                 </div>
             </div>
@@ -727,13 +736,13 @@
             <div class="section">
                 <h2>قمع التحويل <span class="en">| Conversion Funnel</span></h2>
                 <div class="conversion-funnel">
-                    <div class="funnel-step" style="width: 100%; background: linear-gradient(90deg, rgba(6, 182, 212, 0.3), rgba(6, 182, 212, 0.1));">
-                        <div class="number" style="color: #06b6d4;">67,964</div>
+                    <div class="funnel-step" style="width: 100%; background: linear-gradient(90deg, rgba(38, 184, 184, 0.3), rgba(38, 184, 184, 0.1));">
+                        <div class="number" style="color: #26b8b8;">67,964</div>
                         <div class="label">إجمالي الزيارات | Total Visits</div>
                     </div>
                     <div class="funnel-arrow">↓</div>
-                    <div class="funnel-step" style="width: 70%; background: linear-gradient(90deg, rgba(168, 85, 247, 0.3), rgba(168, 85, 247, 0.1));">
-                        <div class="number" style="color: #a855f7;">90</div>
+                    <div class="funnel-step" style="width: 70%; background: linear-gradient(90deg, rgba(0, 146, 146, 0.3), rgba(0, 146, 146, 0.1));">
+                        <div class="number" style="color: #009292;">90</div>
                         <div class="label">الطلبات (0.13%) | Orders</div>
                     </div>
                     <div class="funnel-arrow">↓</div>
@@ -1043,8 +1052,8 @@
                 datasets: [{
                     data: [41669, 16940, 535, 535],
                     backgroundColor: [
-                        'rgba(59, 130, 246, 0.8)',
-                        'rgba(168, 85, 247, 0.8)',
+                        'rgba(0, 146, 146, 0.8)',
+                        'rgba(38, 184, 184, 0.8)',
                         'rgba(34, 197, 94, 0.8)',
                         'rgba(245, 158, 11, 0.8)'
                     ],
@@ -1071,11 +1080,11 @@
                 datasets: [{
                     data: [20631, 18733, 8868, 6454, 1701, 11577],
                     backgroundColor: [
-                        'rgba(6, 182, 212, 0.8)',
-                        'rgba(168, 85, 247, 0.8)',
+                        'rgba(0, 146, 146, 0.8)',
+                        'rgba(38, 184, 184, 0.8)',
                         'rgba(245, 158, 11, 0.8)',
                         'rgba(239, 68, 68, 0.8)',
-                        'rgba(59, 130, 246, 0.8)',
+                        'rgba(0, 108, 108, 0.8)',
                         'rgba(100, 116, 139, 0.8)'
                     ],
                     borderWidth: 0
@@ -1101,8 +1110,8 @@
                 datasets: [{
                     label: 'الزيارات',
                     data: [34961, 13088, 4195, 3823, 3530],
-                    backgroundColor: 'rgba(168, 85, 247, 0.7)',
-                    borderColor: 'rgba(168, 85, 247, 1)',
+                    backgroundColor: 'rgba(0, 146, 146, 0.7)',
+                    borderColor: 'rgba(0, 146, 146, 1)',
                     borderWidth: 2
                 }]
             },
@@ -1132,8 +1141,8 @@
                 datasets: [{
                     data: [60034, 5563, 1753],
                     backgroundColor: [
-                        'rgba(6, 182, 212, 0.8)',
-                        'rgba(168, 85, 247, 0.8)',
+                        'rgba(0, 146, 146, 0.8)',
+                        'rgba(38, 184, 184, 0.8)',
                         'rgba(34, 197, 94, 0.8)'
                     ],
                     borderWidth: 0
